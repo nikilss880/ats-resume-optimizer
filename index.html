@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATS Resume Optimizer — Score & Improve Your Resume</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <!-- PDF.js for PDF text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+
+  <!-- ── HEADER ── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <rect x="2" y="2" width="8" height="10" rx="1.5" fill="currentColor" opacity=".9"/>
+            <rect x="12" y="2" width="8" height="6" rx="1.5" fill="currentColor" opacity=".5"/>
+            <rect x="12" y="10" width="8" height="10" rx="1.5" fill="currentColor" opacity=".7"/>
+            <rect x="2" y="14" width="8" height="6" rx="1.5" fill="currentColor" opacity=".4"/>
+          </svg>
+        </span>
+        <span class="logo-text">ATS<em>Optimizer</em></span>
+      </div>
+      <nav class="header-nav">
+        <span class="nav-badge">AI-Powered</span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-content">
+      <div class="hero-tag">Resume Intelligence Platform</div>
+      <h1 class="hero-title">Beat the ATS.<br/><span class="accent">Land the Interview.</span></h1>
+      <p class="hero-sub">Upload your resume, paste a job description, and get an instant keyword match score with actionable rewrites — powered by Claude AI.</p>
+    </div>
+  </section>
+
+  <!-- ── MAIN APP ── -->
+  <main class="app-container">
+
+    <!-- STEP 1 & 2: Inputs side by side -->
+    <section class="inputs-grid">
+
+      <!-- Upload Resume -->
+      <div class="card upload-card" id="uploadCard">
+        <div class="card-label">
+          <span class="step-num">01</span>
+          <span>Your Resume</span>
+        </div>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="resumeFile" accept=".pdf" hidden />
+          <div class="drop-icon">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="19" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <path d="M20 27V13M20 13l-5 5M20 13l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p class="drop-title">Drop PDF here</p>
+          <p class="drop-sub">or <button class="link-btn" id="browseBtn">browse files</button></p>
+          <p class="drop-hint">PDF only · Max 10MB</p>
+        </div>
+        <div class="file-preview" id="filePreview" style="display:none">
+          <div class="file-info">
+            <span class="file-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M4 2h8l5 5v11a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M12 2v5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M7 11h6M7 14h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <p class="file-name" id="fileName"></p>
+              <p class="file-size" id="fileSize"></p>
+            </div>
+          </div>
+          <button class="remove-btn" id="removeFile" title="Remove">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="extract-status" id="extractStatus" style="display:none">
+          <div class="status-dot spinning"></div>
+          <span>Extracting text…</span>
+        </div>
+        <div class="extract-ok" id="extractOk" style="display:none">
+          <div class="status-dot ok"></div>
+          <span id="wordCount"></span>
+        </div>
+      </div>
+
+      <!-- Job Description -->
+      <div class="card jd-card">
+        <div class="card-label">
+          <span class="step-num">02</span>
+          <span>Job Description</span>
+        </div>
+        <textarea
+          id="jobDesc"
+          class="jd-textarea"
+          placeholder="Paste the full job description here…&#10;&#10;Include requirements, responsibilities, and preferred qualifications for the best keyword analysis."
+          spellcheck="false"
+        ></textarea>
+        <div class="jd-footer">
+          <span class="char-count" id="charCount">0 characters</span>
+          <button class="link-btn clear-btn" id="clearJd">Clear</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ANALYZE BUTTON -->
+    <div class="analyze-row">
+      <button class="analyze-btn" id="analyzeBtn" disabled>
+        <span class="btn-text">Analyze Resume</span>
+        <span class="btn-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 1l2.39 4.84 5.34.78-3.87 3.77.91 5.32L9 13.27l-4.77 2.51.91-5.32L1.27 6.62l5.34-.78L9 1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="btn-loader" id="btnLoader" style="display:none">
+          <span class="spinner-ring"></span>
+        </span>
+      </button>
+      <p class="analyze-hint" id="analyzeHint">Upload a resume and paste a job description to begin.</p>
+    </div>
+
+    <!-- ── RESULTS ── -->
+    <section class="results-section" id="resultsSection" style="display:none">
+
+      <!-- Score Row -->
+      <div class="score-row">
+        <div class="score-card">
+          <div class="score-ring-wrap">
+            <svg class="score-ring" viewBox="0 0 120 120">
+              <circle class="ring-bg" cx="60" cy="60" r="50"/>
+              <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="50"/>
+            </svg>
+            <div class="score-inner">
+              <span class="score-number" id="scoreNumber">0</span>
+              <span class="score-pct">%</span>
+            </div>
+          </div>
+          <div class="score-meta">
+            <h2 class="score-label" id="scoreLabel">ATS Match Score</h2>
+            <p class="score-desc" id="scoreDesc">Analyzing your resume against the job requirements…</p>
+            <div class="score-bars">
+              <div class="mini-bar-row">
+                <span>Keywords found</span>
+                <div class="mini-bar"><div class="mini-bar-fill" id="kwBar"></div></div>
+                <span id="kwFound">—</span>
+              </div>
+              <div class="mini-bar-row">
+                <span>Skills matched</span>
+                <div class="mini-bar"><div class="mini-bar-fill" id="skillBar"></div></div>
+                <span id="skillFound">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick stats -->
+        <div class="stats-grid">
+          <div class="stat-box" id="statTotal">
+            <span class="stat-num" id="statTotalNum">—</span>
+            <span class="stat-lbl">JD Keywords</span>
+          </div>
+          <div class="stat-box" id="statMatched">
+            <span class="stat-num" id="statMatchedNum">—</span>
+            <span class="stat-lbl">Matched</span>
+          </div>
+          <div class="stat-box" id="statMissing">
+            <span class="stat-num" id="statMissingNum">—</span>
+            <span class="stat-lbl">Missing</span>
+          </div>
+          <div class="stat-box" id="statGrade">
+            <span class="stat-num" id="statGradeNum">—</span>
+            <span class="stat-lbl">Grade</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-row">
+        <button class="tab-btn active" data-tab="keywords">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1 7.5h13M7.5 1v13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Keywords
+        </button>
+        <button class="tab-btn" data-tab="suggestions">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 4h11M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Suggestions
+        </button>
+        <button class="tab-btn" data-tab="rewrites">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 12l9-9M10 3l2 2-9 9-2-2 9-9zM3 12l-1 1 1-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Rewrites
+        </button>
+        <button class="tab-btn" data-tab="resume">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="2" y="1" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M5 5h5M5 8h5M5 11h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Resume Text
+        </button>
+      </div>
+
+      <!-- Tab Panels -->
+      <div class="tab-panels">
+
+        <!-- KEYWORDS TAB -->
+        <div class="tab-panel active" id="tab-keywords">
+          <div class="panel-two-col">
+            <div class="kw-col">
+              <h3 class="col-title col-title--green">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Found in Resume
+              </h3>
+              <div class="kw-chips" id="foundChips"></div>
+            </div>
+            <div class="kw-col">
+              <h3 class="col-title col-title--red">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Missing Keywords
+              </h3>
+              <div class="kw-chips" id="missingChips"></div>
+            </div>
+          </div>
+          <div class="highlighted-section">
+            <h3 class="section-subtitle">Resume — Keyword Highlights</h3>
+            <div class="highlighted-text" id="highlightedResume"></div>
+          </div>
+        </div>
+
+        <!-- SUGGESTIONS TAB -->
+        <div class="tab-panel" id="tab-suggestions">
+          <div class="suggestions-list" id="suggestionsList"></div>
+        </div>
+
+        <!-- REWRITES TAB -->
+        <div class="tab-panel" id="tab-rewrites">
+          <div class="rewrites-intro">
+            <p>Weak bullet points detected in your resume. Here are AI-powered rewrites using stronger action verbs and quantifiable impact aligned with the job description.</p>
+          </div>
+          <div class="rewrites-list" id="rewritesList"></div>
+        </div>
+
+        <!-- RESUME TEXT TAB -->
+        <div class="tab-panel" id="tab-resume">
+          <div class="resume-text-wrap">
+            <div class="resume-raw" id="resumeRaw"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>ATS Resume Optimizer · Powered by Claude AI · Your data stays in your browser</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
